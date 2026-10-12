@@ -42,6 +42,9 @@ cd app-service-builder-static-html
 The app is self-contained at the repository root; no parent repository files,
 subtree extraction, or ZIP download are needed.
 
+The single component omits `path`, which defaults to the repository root.
+Its explicit `role: static` and `output: public` publish only `public/`.
+
 ### Quickstart
 
 From the repository root:
