@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 
-test('the static manifest uses repository-root defaults', async () => {
+test('the static manifest uses the default public URL mount', async () => {
   assert.equal(await readFile(new URL('builder.yaml', import.meta.url), 'utf8'),
     'components:\n  - name: site\n    role: static\n    output: public\n');
 });
