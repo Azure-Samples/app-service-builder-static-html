@@ -8,15 +8,17 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 
+test('the static manifest uses the default public URL mount', async () => {
+  assert.equal(await readFile(new URL('builder.yaml', import.meta.url), 'utf8'),
+    'components:\n  - name: site\n    role: static\n    output: public\n');
+});
+
 test('the static sample runs from an independent root', { timeout: 15000 }, async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'builder-static-html-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   for (const path of ['builder.yaml', 'serve.mjs', 'public']) {
     await cp(new URL(path, import.meta.url), join(root, path), { recursive: true });
   }
-  assert.equal(await readFile(join(root, 'builder.yaml'), 'utf8'),
-    'components:\n  - name: site\n    role: static\n    output: public\n    path: /\n');
-
   await new Promise((resolve, reject) => {
     const socket = createConnection({ host: '127.0.0.1', port: 8080 });
     socket.once('connect', () => {
