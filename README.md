@@ -14,6 +14,9 @@ authorization or deployment works in your selected preview environment.
 * A static `/health` asset that returns `OK`.
 * A root-level `builder.yaml` that deploys only `public/`.
 * Dependency-free local serving and automated HTTP checks.
+* A responsive showcase with an illustrative HTML source sheet, light and dark
+  color schemes, and a keyboard-accessible health-check link. Styles are inline;
+  no external fonts, images, or runtime dependencies are loaded.
 
 ## Getting Started
 
@@ -56,7 +59,11 @@ node serve.mjs
 
 Open `http://localhost:8080/`. The page displays
 `App Service Builder / static-html` and
-`Hello from a browser-ready static sample.`. Check the static health asset:
+`Hello from a browser-ready static sample.`. Its headline reads
+`Simply static. Ready to say hello.`. The source sheet is an illustration, not
+an editor or a live deployment status. The color scheme follows your browser
+preference; `?scoutTheme=light` or `?scoutTheme=dark` selects a scheme explicitly.
+Check the static health asset:
 
 ```sh
 curl -i http://localhost:8080/health

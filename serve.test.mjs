@@ -5,12 +5,44 @@ import { cp, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createConnection } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { runInNewContext } from 'node:vm';
 import test from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 
 test('the static manifest uses the default public URL mount', async () => {
   assert.equal(await readFile(new URL('builder.yaml', import.meta.url), 'utf8'),
     'components:\n  - name: site\n    role: static\n    output: public\n');
+});
+
+test('the showcase stays self-contained and respects color scheme preferences', async () => {
+  const html = await readFile(new URL('public/index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /<(?:script\b[^>]*\bsrc=|link\b[^>]*\brel=["']stylesheet|img\b)/i);
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(script, 'the inline theme setup is present');
+  for (const [search, prefersDark, expected] of [
+    ['', false, 'light'],
+    ['', true, 'dark'],
+    ['?scoutTheme=light', true, 'light'],
+    ['?scoutTheme=dark', false, 'dark'],
+  ]) {
+    let actual;
+    runInNewContext(script, {
+      URLSearchParams,
+      window: {
+        location: { search },
+        matchMedia: () => ({ matches: prefersDark }),
+      },
+      document: {
+        documentElement: {
+          setAttribute: (name, value) => {
+            assert.equal(name, 'data-theme');
+            actual = value;
+          },
+        },
+      },
+    });
+    assert.equal(actual, expected);
+  }
 });
 
 test('the static sample runs from an independent root', { timeout: 15000 }, async (t) => {
